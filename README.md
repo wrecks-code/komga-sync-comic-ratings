@@ -1,6 +1,6 @@
 # komga-sync-comic-ratings
 
-A userscript for syncing comic ratings from ComicBookRoundup into Komga. It fetches critic and user ratings for individual series or entire libraries via the Komga API, updates metadata, and provides real-time progress indicators and error handling.
+A userscript for syncing comic ratings from [ComicBookRoundup](https://comicbookroundup.com/) into Komga. It fetches critic and user ratings for individual series or entire libraries via the Komga API, updates metadata, and provides real-time progress indicators and error handling.
 
 ## Features
 
@@ -32,7 +32,7 @@ A userscript for syncing comic ratings from ComicBookRoundup into Komga. It fetc
      ```js
      const KOMGA_API_KEY = "YOUR_API_KEY_HERE";
      ```
-   - Ensure the `@match` directive matches your Komga web URL (e.g., `https://comics.speedpoop.com/*`).
+   - Ensure the `@match` directive matches your Komga web URL (e.g., `https://comics.website.com/*` or `http://192.168.0.2:25600/*`).
 
 ## Usage
 
