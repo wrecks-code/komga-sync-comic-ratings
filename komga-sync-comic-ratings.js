@@ -6,7 +6,7 @@
 // @grant        GM_xmlhttpRequest
 // @connect      comicbookroundup.com
 // @author       wrecks-code
-// @match        https://comics.speedpoop.com/*
+// @match        https://comics.domain.com/*
 // ==/UserScript==
 
 (function() {
