@@ -5,6 +5,8 @@ A userscript for syncing comic ratings from [ComicBookRoundup](https://comicbook
 ## Features
 
 - **Single Series Sync:** Fetch ratings for an individual series and update its metadata.
+- ![Animation](https://github.com/user-attachments/assets/95b31ee6-2a57-478f-8f57-69a6e68d5517)
+
 - **Bulk Library Sync:** Process all series in a library with a real-time progress counter.
 - **API Integration:** Communicate directly with the Komga API for data retrieval and updates.
 - **Robust Error Handling:** Logs errors and API key issues for easier troubleshooting.
