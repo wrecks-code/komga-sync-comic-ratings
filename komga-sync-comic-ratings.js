@@ -7,7 +7,9 @@
 // @connect      comicbookroundup.com
 // @author       wrecks-code
 // @license      MIT
+
 // @match        https://komga.org/*
+
 // ==/UserScript==
 
 (function() {
@@ -435,27 +437,25 @@
         const normK = normalizeTitle(kTitle);
         const normC = normalizeTitle(cTitle);
 
-        // Split titles into tokens
+        // Token recall check: require at least 80% of query tokens to appear in the candidate
         const queryTokens = normK.split(" ");
         const candidateTokens = normC.split(" ");
-        // Calculate recall: what fraction of query tokens appear in the candidate?
         const intersectionCount = queryTokens.filter(token => candidateTokens.includes(token)).length;
         const recall = intersectionCount / queryTokens.length;
-        // Require at least 80% of query tokens to be present in the candidate
         if (recall < 0.8) return -999;
 
+        // Compute text similarity via Jaccard similarity; reject if too low
         let textSim = jaccardSimilarity(normK, normC);
-        // Require a minimum text similarity of 0.3 to consider a candidate
         if (textSim < 0.3) return -999;
 
         let score = textSim;
-
         if (normK === normC) {
             score += 1.0;
         } else if (normK.includes(normC) || normC.includes(normK)) {
             score += 0.2;
         }
 
+        // Year handling: if query includes a year, normally we want a candidate with a year.
         if (kYear) {
             if (cYear) {
                 const diff = Math.abs(cYear - kYear);
@@ -469,12 +469,21 @@
                     score -= diff * 0.1;
                 }
             } else {
-                // With no candidate year, subtract a small penalty
-                score -= 0.2;
+                // If candidate lacks a year, try removing numeric tokens from the normalized query.
+                // This helps in cases where extraneous numbers (like "30th") are present.
+                let normKNoNumbers = normK.replace(/\b\d+\w*\b/g, "").trim();
+                if (normKNoNumbers === normC) {
+                    // Accept candidate with a slight penalty for missing year.
+                    score -= 0.1;
+                } else {
+                    return -999;
+                }
             }
         }
         return score;
     }
+
+
 
 
   function parseYearFromTitle(str) {
@@ -485,17 +494,20 @@
     function normalizeTitle(str) {
         return str
             .toLowerCase()
+        // Remove common articles
+            .replace(/\b(the|a|an)\b\s*/g, "")
         // Remove trailing year in parentheses
             .replace(/\(\d{4}\)\s*$/, "")
-        // Remove common extraneous phrases including optional "the"
+        // Remove extraneous phrases (with optional "the")
             .replace(/\b(?:the\s+)?(deluxe edition|anniversary edition|omnibus|compendium)\b/gi, "")
-        // Remove any text starting with "by" (to remove writer names, etc.)
+        // Remove any text starting with "by" (to remove author names, etc.)
             .replace(/\bby\b.*$/i, "")
         // Remove punctuation
             .replace(/[':;#"!\?\(\)\[\]\-.,]/g, " ")
             .replace(/\s+/g, " ")
             .trim();
     }
+
 
 
 
