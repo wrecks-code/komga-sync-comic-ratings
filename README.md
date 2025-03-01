@@ -40,7 +40,7 @@ Effortlessly sync comic ratings from [ComicBookRoundup](https://comicbookroundup
 3. **Configure the Script:**
    - Replace the URL at the top of the script with your Komga URL:
      ```js
-     // @match        https://comics.domain.com/*
+     // @match        https://komga.org/*
      ```
    - Replace the placeholder API key at the top of the script:
      ```js
