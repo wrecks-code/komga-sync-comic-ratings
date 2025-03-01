@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name         Komga - Sync Comic Ratings (from ComicBookRoundup)
 // @namespace    wreck.userscripts.komga.rating
-// @version      1.0
+// @version      1.6
 // @description  Fetches comic ratings from comicbookroundup.com and syncs them into Komga metadata using the API
 // @grant        GM_xmlhttpRequest
 // @connect      comicbookroundup.com
 // @author       wrecks-code
-// @match        https://comics.domain.com/*
+// @license      MIT
+// @match        https://komga.org/*
 // ==/UserScript==
 
 (function() {
@@ -377,42 +378,38 @@
       }
     });
   }
-
-  function searchComicBookRoundup(komgaTitle, komgaYear, callback) {
-    console.log(`🔍 Searching ComicBookRoundup for: "${komgaTitle}" (Year: ${komgaYear || "N/A"})`);
-    GM_xmlhttpRequest({
-      method: "GET",
-      url: `${CBR_SEARCH_URL}${encodeURIComponent(komgaTitle)}`,
-      onload: (response) => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(response.responseText, "text/html");
-
-        let anchors = doc.querySelectorAll("tr.search_results td.current a");
-        if (!anchors.length) {
-          console.log(`❌ No results found on ComicBookRoundup for: "${komgaTitle}".`);
-          callback(null);
-          return;
-        }
-
-        anchors = Array.from(anchors).slice(0, 15);
-
-        const rowTitles = anchors.map(a => ({
-          text: a.textContent.trim(),
-          href: a.getAttribute("href")
-        }));
-
-        const { bestMatch, bestScore } = findBestCbrMatch(komgaTitle, komgaYear, rowTitles);
-        if (!bestMatch) {
-          console.log(`⚠️ No strong match for "${komgaTitle}" (Year: ${komgaYear || "N/A"}); closest: "${rowTitles[0]?.text || "N/A"}" (Year: ${parseYearFromTitle(rowTitles[0]?.text) || "N/A"}, score: ${bestScore.toFixed(2)}). Skipping.`);
-          callback(null);
-        } else {
-          const fullUrl = "https://comicbookroundup.com" + bestMatch.href;
-          console.log(`✅ Best match: "${bestMatch.text}" (Score: ${bestScore.toFixed(2)}) 🔗 ${fullUrl}`);
-          callback(fullUrl);
-        }
-      }
-    });
-  }
+    function searchComicBookRoundup(komgaTitle, komgaYear, callback) {
+        const cleanedTitle = normalizeTitle(komgaTitle);
+        console.log(`🔍 Searching ComicBookRoundup for: "${cleanedTitle}" (Year: ${komgaYear || "N/A"})`);
+        GM_xmlhttpRequest({
+            method: "GET",
+            url: `${CBR_SEARCH_URL}${encodeURIComponent(cleanedTitle)}`,
+            onload: (response) => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(response.responseText, "text/html");
+                let anchors = doc.querySelectorAll("tr.search_results td.current a");
+                if (!anchors.length) {
+                    console.log(`❌ No results found on ComicBookRoundup for: "${cleanedTitle}".`);
+                    callback(null);
+                    return;
+                }
+                anchors = Array.from(anchors).slice(0, 15);
+                const rowTitles = anchors.map(a => ({
+                    text: a.textContent.trim(),
+                    href: a.getAttribute("href")
+                }));
+                const { bestMatch, bestScore } = findBestCbrMatch(komgaTitle, komgaYear, rowTitles);
+                if (!bestMatch) {
+                    console.log(`⚠️ No strong match for "${komgaTitle}" (Year: ${komgaYear || "N/A"}); closest: "${rowTitles[0]?.text || "N/A"}" (Year: ${parseYearFromTitle(rowTitles[0]?.text) || "N/A"}, score: ${bestScore.toFixed(2)}). Skipping.`);
+                    callback(null);
+                } else {
+                    const fullUrl = "https://comicbookroundup.com" + bestMatch.href;
+                    console.log(`✅ Best match: "${bestMatch.text}" (Score: ${bestScore.toFixed(2)}) 🔗 ${fullUrl}`);
+                    callback(fullUrl);
+                }
+            }
+        });
+    }
 
   function findBestCbrMatch(kTitle, kYear, rowArr) {
     let bestMatch = null;
@@ -434,40 +431,50 @@
     return { bestMatch, bestScore };
   }
 
-  function computeMatchScore(kTitle, kYear, cTitle, cYear) {
-    const normK = normalizeTitle(kTitle);
-    const normC = normalizeTitle(cTitle);
-  
-    let textSim = jaccardSimilarity(normK, normC);
-    if (textSim === 0) return -999; // skip zero-overlap
-  
-    let score = textSim;
-  
-    if (normK === normC) {
-      score += 1.0;
-    } else if (normK.includes(normC) || normC.includes(normK)) {
-      score += 0.2;
-    }
-  
-    if (kYear) {
-      if (cYear) {
-        const diff = Math.abs(cYear - kYear);
-        if (diff === 0) {
-          score += 0.5;
-        } else if (diff === 1) {
-          score += 0.2;
-        } else if (diff >= 10) {
-          score -= diff * 0.15;
-        } else {
-          score -= diff * 0.1;
+    function computeMatchScore(kTitle, kYear, cTitle, cYear) {
+        const normK = normalizeTitle(kTitle);
+        const normC = normalizeTitle(cTitle);
+
+        // Split titles into tokens
+        const queryTokens = normK.split(" ");
+        const candidateTokens = normC.split(" ");
+        // Calculate recall: what fraction of query tokens appear in the candidate?
+        const intersectionCount = queryTokens.filter(token => candidateTokens.includes(token)).length;
+        const recall = intersectionCount / queryTokens.length;
+        // Require at least 80% of query tokens to be present in the candidate
+        if (recall < 0.8) return -999;
+
+        let textSim = jaccardSimilarity(normK, normC);
+        // Require a minimum text similarity of 0.3 to consider a candidate
+        if (textSim < 0.3) return -999;
+
+        let score = textSim;
+
+        if (normK === normC) {
+            score += 1.0;
+        } else if (normK.includes(normC) || normC.includes(normK)) {
+            score += 0.2;
         }
-      } else {
-        // Penalize candidates with no year when a year is expected
-        score -= 1.0;
-      }
+
+        if (kYear) {
+            if (cYear) {
+                const diff = Math.abs(cYear - kYear);
+                if (diff === 0) {
+                    if (textSim >= 0.5) score += 0.5;
+                } else if (diff === 1) {
+                    if (textSim >= 0.5) score += 0.2;
+                } else if (diff >= 10) {
+                    score -= diff * 0.15;
+                } else {
+                    score -= diff * 0.1;
+                }
+            } else {
+                // With no candidate year, subtract a small penalty
+                score -= 0.2;
+            }
+        }
+        return score;
     }
-    return score;
-  }
 
 
   function parseYearFromTitle(str) {
@@ -475,13 +482,23 @@
     return m ? parseInt(m[1], 10) : null;
   }
 
-  function normalizeTitle(str) {
-    return str
-      .toLowerCase()
-      .replace(/[':;#"!\?\(\)\[\]\-\.,]/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
-  }
+    function normalizeTitle(str) {
+        return str
+            .toLowerCase()
+        // Remove trailing year in parentheses
+            .replace(/\(\d{4}\)\s*$/, "")
+        // Remove common extraneous phrases including optional "the"
+            .replace(/\b(?:the\s+)?(deluxe edition|anniversary edition|omnibus|compendium)\b/gi, "")
+        // Remove any text starting with "by" (to remove writer names, etc.)
+            .replace(/\bby\b.*$/i, "")
+        // Remove punctuation
+            .replace(/[':;#"!\?\(\)\[\]\-.,]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
+
+
 
   function jaccardSimilarity(a, b) {
     const setA = new Set(a.split(" "));
