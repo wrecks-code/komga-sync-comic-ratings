@@ -6,10 +6,7 @@
 // @grant        GM_xmlhttpRequest
 // @connect      comicbookroundup.com
 // @author       wrecks-code
-// @license      MIT
-
 // @match        https://komga.org/*
-
 // ==/UserScript==
 
 (function() {
@@ -499,14 +496,17 @@
         // Remove trailing year in parentheses
             .replace(/\(\d{4}\)\s*$/, "")
         // Remove extraneous phrases (with optional "the")
-            .replace(/\b(?:the\s+)?(deluxe edition|anniversary edition|omnibus|compendium)\b/gi, "")
+            .replace(/\b(?:the\s+)?(new edition|deluxe edition|master edition|deluxe|anniversary edition|omnibus|compendium)\b/gi, "")
         // Remove any text starting with "by" (to remove author names, etc.)
             .replace(/\bby\b.*$/i, "")
-        // Remove punctuation
-            .replace(/[':;#"!\?\(\)\[\]\-.,]/g, " ")
+        // Remove punctuation except hyphen (unless it has spaces around it)
+            .replace(/[':;#"!\?\(\)\[\]\.,]/g, " ")
+        // Replace hyphen with space only if it has a space on both sides
+            .replace(/(\s)-(\s)/g, "$1 $2")
             .replace(/\s+/g, " ")
             .trim();
     }
+
 
 
 
