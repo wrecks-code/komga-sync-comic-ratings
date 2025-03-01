@@ -1,11 +1,12 @@
 // ==UserScript==
 // @name         Komga - Sync Comic Ratings (from ComicBookRoundup)
 // @namespace    wreck.userscripts.komga.rating
-// @version      1.6
+// @version      1.8
 // @description  Fetches comic ratings from comicbookroundup.com and syncs them into Komga metadata using the API
 // @grant        GM_xmlhttpRequest
 // @connect      comicbookroundup.com
 // @author       wrecks-code
+// @license      MIT
 // @match        https://komga.org/*
 // ==/UserScript==
 
