@@ -437,32 +437,38 @@
   function computeMatchScore(kTitle, kYear, cTitle, cYear) {
     const normK = normalizeTitle(kTitle);
     const normC = normalizeTitle(cTitle);
-
+  
     let textSim = jaccardSimilarity(normK, normC);
     if (textSim === 0) return -999; // skip zero-overlap
-
+  
     let score = textSim;
-
+  
     if (normK === normC) {
       score += 1.0;
     } else if (normK.includes(normC) || normC.includes(normK)) {
       score += 0.2;
     }
-
-    if (kYear && cYear) {
-      const diff = Math.abs(cYear - kYear);
-      if (diff === 0) {
-        score += 0.5;
-      } else if (diff === 1) {
-        score += 0.2;
-      } else if (diff >= 10) {
-        score -= diff * 0.15;
+  
+    if (kYear) {
+      if (cYear) {
+        const diff = Math.abs(cYear - kYear);
+        if (diff === 0) {
+          score += 0.5;
+        } else if (diff === 1) {
+          score += 0.2;
+        } else if (diff >= 10) {
+          score -= diff * 0.15;
+        } else {
+          score -= diff * 0.1;
+        }
       } else {
-        score -= diff * 0.1;
+        // Penalize candidates with no year when a year is expected
+        score -= 1.0;
       }
     }
     return score;
   }
+
 
   function parseYearFromTitle(str) {
     const m = str.match(/\((\d{4})\)\s*$/);
