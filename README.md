@@ -21,11 +21,8 @@ Effortlessly sync comic ratings from [ComicBookRoundup](https://comicbookroundup
 
 * A running [Komga](https://komga.org/) instance with API access enabled.
 * A valid Komga API key.
-* A userscript manager:
-    * [Tampermonkey](https://www.tampermonkey.net/)
-    * [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/)
-    * [Violentmonkey](https://violentmonkey.github.io/)
-
+* A userscript manager.
+  
 ## 🔧 Installation
 
 1. **Install a Userscript Manager:**  
