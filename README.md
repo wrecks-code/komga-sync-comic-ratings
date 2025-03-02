@@ -2,8 +2,6 @@
 
 Effortlessly sync comic ratings from [ComicBookRoundup](https://comicbookroundup.com/) directly into your [Komga](https://komga.org/) library. This userscript automates the process of fetching critic and user ratings, saving them as metadata links within Komga, enhancing your comic management experience.
 
-![Komga Ratings Screenshot](https://github.com/user-attachments/assets/24f791ad-dc5f-442a-9c50-5c6efb1afd4f)
-
 ## 🚀 Key Features
 
 * **Single Series Sync:** Update ratings for individual series with a click.
