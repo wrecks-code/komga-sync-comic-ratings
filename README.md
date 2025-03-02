@@ -60,16 +60,6 @@ Effortlessly sync comic ratings from [ComicBookRoundup](https://comicbookroundup
 
 * **Monitor the progress in the console (F12).**
 
-## ⚠️ Troubleshooting
-
-* **Ratings not updating:**
-    * Verify that your Komga API key is correct.
-    * Check your browser's console (F12) for error messages.
-    * Verify that your Komga URL is correct.
-* **Script not running:**
-    * Ensure your userscript manager is enabled.
-    * Confirm that the `@match` URL in the script matches your Komga URL.
-
 ## 📝 License
 
 This project is licensed under the [MIT License](LICENSE).
