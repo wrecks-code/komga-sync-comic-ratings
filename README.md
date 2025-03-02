@@ -10,7 +10,7 @@ Effortlessly sync comic ratings from [ComicBookRoundup](https://comicbookroundup
 * **Bulk Library Sync:** Process entire libraries with a live progress counter.
   
      ![Bulk Library Sync Animation](https://github.com/user-attachments/assets/351cdb2a-3c95-4141-b099-130ad11c1902)
-* **Detailed Logging:** Monitor progress and troubleshoot with comprehensive console logs (F12 - > Console). 
+* **Detailed Logging:** Monitor progress and troubleshoot with comprehensive console logs (F12 - > Console, Filter: komga). 
   
      ![Detailed Logs Animation](https://github.com/user-attachments/assets/2a438b07-5062-4f81-b3b1-d42bc8e4f328)
 * **New Feature:** Add your own Rating! It also gets saved as a link in Komga.
