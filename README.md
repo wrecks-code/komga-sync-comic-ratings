@@ -7,18 +7,17 @@ Effortlessly sync comic ratings from [ComicBookRoundup](https://comicbookroundup
 ## 🚀 Key Features
 
 * **New Feature:** Add your own Rating! It also gets saved as a link in Komga.
-    * ![Animation](https://github.com/user-attachments/assets/55ffe7c9-4a27-4600-bcc8-7887ee634e93)
 
-
+     ![Animation](https://github.com/user-attachments/assets/55ffe7c9-4a27-4600-bcc8-7887ee634e93)
 * **Single Series Sync:** Update ratings for individual series with a click.
   
-    * ![Single Series Sync Animation](https://github.com/user-attachments/assets/95b31ee6-2a57-478f-8f57-69a6e68d5517)
+     ![Single Series Sync Animation](https://github.com/user-attachments/assets/95b31ee6-2a57-478f-8f57-69a6e68d5517)
 * **Bulk Library Sync:** Process entire libraries with a live progress counter.
   
-    * ![Bulk Library Sync Animation](https://github.com/user-attachments/assets/82d895b2-ceb1-4eae-afa8-8d74eeca8bf8)
+     ![Bulk Library Sync Animation](https://github.com/user-attachments/assets/82d895b2-ceb1-4eae-afa8-8d74eeca8bf8)
 * **Detailed Logging:** Monitor progress and troubleshoot with comprehensive console logs.
   
-    * ![Detailed Logs Animation](https://github.com/user-attachments/assets/70341cc7-2c45-4b73-8413-7c3143d0940a)
+     ![Detailed Logs Animation](https://github.com/user-attachments/assets/70341cc7-2c45-4b73-8413-7c3143d0940a)
 * **Seamless Komga API Integration:** Direct communication for efficient data exchange.
 
 ## ⚙️ Requirements
@@ -54,13 +53,13 @@ Effortlessly sync comic ratings from [ComicBookRoundup](https://comicbookroundup
     * Navigate to a series page in your Komga library.
     * Click the "Fetch Ratings" button that appears.
       
-    ![image](https://github.com/user-attachments/assets/5165aaa3-51eb-4702-b0c6-21c1d4a36b1b)
+       ![image](https://github.com/user-attachments/assets/5165aaa3-51eb-4702-b0c6-21c1d4a36b1b)
 
 * **Bulk Library Sync:**
     * Navigate to a library page in your Komga library.
     * Click the Star Icon button that appears in the top right.
       
-    ![image](https://github.com/user-attachments/assets/8d6db02d-dce7-4099-b8b5-cf3db9df5aa5)
+       ![image](https://github.com/user-attachments/assets/8d6db02d-dce7-4099-b8b5-cf3db9df5aa5)
 
 * **Monitor the progress in the console (F12).**
 
