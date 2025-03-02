@@ -15,7 +15,11 @@ Effortlessly sync comic ratings from [ComicBookRoundup](https://comicbookroundup
      ![Detailed Logs Animation](https://github.com/user-attachments/assets/2a438b07-5062-4f81-b3b1-d42bc8e4f328)
 * **New Feature:** Add your own Rating! It also gets saved as a link in Komga.
 
-     ![Animation](https://github.com/user-attachments/assets/55ffe7c9-4a27-4600-bcc8-7887ee634e93)
+     ![OwnRatingAnimation](https://github.com/user-attachments/assets/55ffe7c9-4a27-4600-bcc8-7887ee634e93)
+
+* **Optional:** Install the show-ratings-in-library.js as well if you want to see these ratings in your library view (it only shows the one with higher review count, and your personal rating if it exists).
+     ![LibraryView](https://github.com/user-attachments/assets/bcb10148-19c0-4c8b-86b4-0a75797c5abf)
+
 
 ## ⚙️ Requirements
 
