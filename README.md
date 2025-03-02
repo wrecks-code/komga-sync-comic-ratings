@@ -11,13 +11,13 @@ Effortlessly sync comic ratings from [ComicBookRoundup](https://comicbookroundup
      ![Animation](https://github.com/user-attachments/assets/55ffe7c9-4a27-4600-bcc8-7887ee634e93)
 * **Single Series Sync:** Update ratings for individual series with a click.
   
-     ![Single Series Sync Animation](https://github.com/user-attachments/assets/95b31ee6-2a57-478f-8f57-69a6e68d5517)
+     ![Series Sync Animation](https://github.com/user-attachments/assets/90ca0b12-673a-4828-88be-fe11495196f2)
 * **Bulk Library Sync:** Process entire libraries with a live progress counter.
   
-     ![Bulk Library Sync Animation](https://github.com/user-attachments/assets/82d895b2-ceb1-4eae-afa8-8d74eeca8bf8)
+     ![Bulk Library Sync Animation](https://github.com/user-attachments/assets/351cdb2a-3c95-4141-b099-130ad11c1902)
 * **Detailed Logging:** Monitor progress and troubleshoot with comprehensive console logs.
   
-     ![Detailed Logs Animation](https://github.com/user-attachments/assets/70341cc7-2c45-4b73-8413-7c3143d0940a)
+     ![Detailed Logs Animation](https://github.com/user-attachments/assets/2a438b07-5062-4f81-b3b1-d42bc8e4f328)
 * **Seamless Komga API Integration:** Direct communication for efficient data exchange.
 
 ## ⚙️ Requirements
