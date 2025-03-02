@@ -6,7 +6,7 @@ Effortlessly sync comic ratings from [ComicBookRoundup](https://comicbookroundup
 
 ## 🚀 Key Features
 
-* **New Feature: Add your own Rating! It also gets saved as a link in Komga.
+* **New Feature:** Add your own Rating! It also gets saved as a link in Komga.
     * ![Animation](https://github.com/user-attachments/assets/55ffe7c9-4a27-4600-bcc8-7887ee634e93)
 
 
