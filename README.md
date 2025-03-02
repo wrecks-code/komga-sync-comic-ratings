@@ -17,8 +17,9 @@ Effortlessly sync comic ratings from [ComicBookRoundup](https://comicbookroundup
 
      ![OwnRatingAnimation](https://github.com/user-attachments/assets/55ffe7c9-4a27-4600-bcc8-7887ee634e93)
 
-* **Optional:** Install the show-ratings-in-library.js as well if you want to see these ratings in your library view (it only shows the one with higher review count, and your personal rating if it exists).
-     ![LibraryView](https://github.com/user-attachments/assets/bcb10148-19c0-4c8b-86b4-0a75797c5abf)
+* **Optional:** Install the show-ratings-in-library.js as well if you want to see these ratings in your library view.
+
+     ![image](https://github.com/user-attachments/assets/647ac1cb-670f-4882-97df-2505bc8040ed)
 
 
 ## ⚙️ Requirements
@@ -36,7 +37,7 @@ Effortlessly sync comic ratings from [ComicBookRoundup](https://comicbookroundup
    - [Violentmonkey](https://violentmonkey.github.io/)
 
 2. **Add the Script:**  
-   Create a new userscript in your chosen manager and copy-paste the contents of this repository's script.
+   Create a new userscript in your chosen manager and copy-paste the contents of komga-sync-comic-ratings.js.
 
 3. **Configure the Script:**
    - Replace the URL at the top of the script with your Komga URL:
