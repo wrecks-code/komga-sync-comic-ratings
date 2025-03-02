@@ -42,16 +42,15 @@
       .then(res => res.json())
       .then(seriesData => {
         const links = seriesData.metadata.links || [];
-        // Remove links that include "User Rating" or "Critic Rating" (case-insensitive).
+        // Remove any link whose label starts with "critic rating:", "user rating:" or "your rating:" (case-insensitive).
         const filteredLinks = links.filter(link => {
-          const label = link.label.toLowerCase();
-          return !(label.includes("user rating") || label.includes("critic rating"));
+          const label = link.label.toLowerCase().trim();
+          return !(
+            label.startsWith("critic rating:") ||
+            label.startsWith("user rating:") ||
+            label.startsWith("your rating:")
+          );
         });
-        
-        // Ensure a "Your Rating" link exists. If missing, add one with a default value of 0.
-        if (!filteredLinks.some(link => link.label.toLowerCase().includes("your rating"))) {
-          filteredLinks.push({ label: "Your Rating: 0", url: location.href });
-        }
         
         // Only update if changes were made.
         if (filteredLinks.length !== links.length) {
