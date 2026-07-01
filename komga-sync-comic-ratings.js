@@ -17,7 +17,7 @@
   // !!!
 
   // This doesn't have to be changed
-  const CBR_SEARCH_URL = "https://comicbookroundup.com/search_results.php?f_search=";
+  const CBR_SEARCH_URL = "https://comicbookroundup.com/search-results?keyword=";
   const KOMGA_HOST = location.origin;
 
   /**
