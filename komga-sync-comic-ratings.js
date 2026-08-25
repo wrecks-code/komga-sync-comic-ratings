@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         Komga - Sync Comic Ratings (from ComicBookRoundup)
 // @namespace    wreck.userscripts.komga.rating
-// @version      1.6
+// @version      1.7
 // @description  Fetches comic ratings from comicbookroundup.com and syncs them into Komga metadata using the API
 // @grant        GM_xmlhttpRequest
 // @connect      comicbookroundup.com
-// @author       wrecks-code
+// @author       wrecks-code, Fontler
 // @match        https://komga.org/*
 // ==/UserScript==
 
@@ -17,7 +17,7 @@
   // !!!
 
   // This doesn't have to be changed
-  const CBR_SEARCH_URL = "https://comicbookroundup.com/search_results.php?f_search=";
+  const CBR_SEARCH_URL = "https://comicbookroundup.com/search-results?keyword=";
   const KOMGA_HOST = location.origin;
 
   /**
@@ -471,27 +471,67 @@
       onload: (response) => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(response.responseText, "text/html");
-        const criticEl = doc.querySelector(".review.green, .review.yellow, .review.red, .review.grey");
-        const userEl   = doc.querySelector(".user-review.green, .user-review.yellow, .user-review.red, .user-review.grey");
-        let criticRating = criticEl
-          ? criticEl.textContent.replace("Critic Rating", "").trim()
-          : "N/A";
-        let userRating = userEl
-          ? userEl.textContent.replace("User Rating", "").trim()
-          : "N/A";
-        let criticReviews = parseInt(
-          doc.querySelector("span[itemprop='votes']")?.textContent.trim() || "0",
-          10
-        );
-        let userReviews = 0;
-        const userReviewsEl = [...doc.querySelectorAll("strong")]
-          .find(e => e.textContent.includes("User Reviews:"));
-        if (userReviewsEl) {
-          userReviews = parseInt(userReviewsEl.nextSibling.textContent.trim() || "0", 10);
-        }
+
+        const aggregateRating = getAggregateRatingFromJsonLd(doc);
+        const criticSummary = getRatingSummary(doc, "Critic Rating");
+        const userSummary = getRatingSummary(doc, "User Rating");
+
+        const criticRating = criticSummary.rating || aggregateRating.rating || "N/A";
+        const userRating = userSummary.rating || "N/A";
+        const criticReviews = criticSummary.reviews || aggregateRating.reviews || 0;
+        const userReviews = userSummary.reviews || 0;
+
         callback(criticRating, userRating, criticReviews, userReviews);
       }
     });
+  }
+
+  function getRatingSummary(doc, label) {
+    const sections = Array.from(doc.querySelectorAll(".review-section > div"));
+    const section = sections.find(el => {
+      const heading = el.querySelector("h2");
+      return heading && heading.textContent.trim().toLowerCase() === label.toLowerCase();
+    });
+
+    if (!section) {
+      return { rating: null, reviews: 0 };
+    }
+
+    const rating = section.querySelector(".review span")?.textContent.trim() || null;
+    const reviewText = section.querySelector(".review-count")?.textContent || "";
+    const reviews = parseReviewCount(reviewText);
+    return { rating, reviews };
+  }
+
+  function getAggregateRatingFromJsonLd(doc) {
+    const scripts = Array.from(doc.querySelectorAll("script"));
+    for (const script of scripts) {
+      const text = script.textContent.trim();
+      if (!text || !text.includes("AggregateRating")) continue;
+
+      try {
+        const data = JSON.parse(text);
+        const aggregate = Array.isArray(data)
+          ? data.find(item => item?.["@type"] === "AggregateRating")
+          : data;
+
+        if (aggregate?.["@type"] === "AggregateRating") {
+          return {
+            rating: aggregate.ratingValue ? String(aggregate.ratingValue).trim() : null,
+            reviews: parseReviewCount(aggregate.ratingCount || aggregate.reviewCount || "")
+          };
+        }
+      } catch (err) {
+        console.warn("Unable to parse ComicBookRoundup AggregateRating JSON-LD:", err);
+      }
+    }
+
+    return { rating: null, reviews: 0 };
+  }
+
+  function parseReviewCount(value) {
+    const match = String(value).replace(/,/g, "").match(/\d+/);
+    return match ? parseInt(match[0], 10) : 0;
   }
 
   function searchComicBookRoundup(komgaTitle, komgaYear, callback) {
