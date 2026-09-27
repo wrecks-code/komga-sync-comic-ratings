@@ -1,8 +1,7 @@
 (function() {
   'use strict';
 
-  // Replace with your Komga API key.
-  const KOMGA_API_KEY = "YOUR_API_KEY_HERE";
+  // Paste into the browser console on a Komga library page; uses your logged-in session.
   const KOMGA_HOST = location.origin;
   
   // Cache API responses keyed by seriesId (if needed in future)
@@ -18,9 +17,7 @@
   console.log(`🔍 Using library ID: ${libraryId}`);
 
   // Fetch all series in the library.
-  fetch(`${KOMGA_HOST}/api/v1/series?library_id=${libraryId}&page=0&size=9999`, {
-    headers: { Authorization: `Bearer ${KOMGA_API_KEY}` }
-  })
+  fetch(`${KOMGA_HOST}/api/v1/series?library_id=${libraryId}&page=0&size=9999`)
   .then(res => res.json())
   .then(data => {
     const seriesArr = data.content || [];
@@ -36,9 +33,7 @@
       const seriesId = series.id;
       
       // Fetch individual series metadata.
-      fetch(`${KOMGA_HOST}/api/v1/series/${seriesId}`, {
-        headers: { Authorization: `Bearer ${KOMGA_API_KEY}` }
-      })
+      fetch(`${KOMGA_HOST}/api/v1/series/${seriesId}`)
       .then(res => res.json())
       .then(seriesData => {
         const links = seriesData.metadata.links || [];
@@ -56,10 +51,7 @@
         if (filteredLinks.length !== links.length) {
           fetch(`${KOMGA_HOST}/api/v1/series/${seriesId}/metadata`, {
             method: "PATCH",
-            headers: {
-              Authorization: `Bearer ${KOMGA_API_KEY}`,
-              "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ links: filteredLinks })
           })
           .then(resp => {

@@ -24,8 +24,8 @@ Effortlessly sync comic ratings from [ComicBookRoundup](https://comicbookroundup
 
 ## ⚙️ Requirements
 
-* A running [Komga](https://komga.org/) instance with API access enabled.
-* A valid Komga API key.
+* A running [Komga](https://komga.org/) instance (tested with 1.27). Works in both the classic web UI and the new UI (`/next`), in any theme and language.
+* Being logged into Komga in the same browser. The scripts use your session, no API key needed.
 * A userscript manager.
   
 ## 🔧 Installation
@@ -44,10 +44,17 @@ Effortlessly sync comic ratings from [ComicBookRoundup](https://comicbookroundup
      ```js
      // @match        https://komga.org/*
      ```
-   - Replace the placeholder API key at the top of the script:
-     ```js
-     const KOMGA_API_KEY = "YOUR_API_KEY_HERE";
-     ```
+   - Upgrading from 1.x? The `KOMGA_API_KEY` setting is gone. Komga never read it; requests always went through your login session.
+
+## 🎯 Matching
+
+The script searches ComicBookRoundup by series title, using the year from the title, the folder name (`Batman (2016)`) or the books' release date to pick the right volume. Story arcs and omnibuses that CBR only lists as trade paperbacks (e.g. *Batman: Year One*, *Old Man Logan*) are matched against the parent series' trades; multi-volume sets are combined.
+
+Once a series has a ComicBookRoundup link, refreshes reuse it instead of searching again. To fix a wrong or missing match, edit the series in Komga and set the `Critic Rating` link to the correct CBR page (series or trade), then fetch again. **Shift+click** either fetch button to ignore saved links and search from scratch.
+
+## 🧹 Removing all ratings
+
+`reset-links.js` removes every `Critic Rating`, `User Rating` and `Your Rating` link from a library. Open the library in Komga, press F12, and paste it into the console.
 
 ## 📝 License
 
