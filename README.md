@@ -1,6 +1,20 @@
 # Komga Comic Ratings Sync from ComicBookRoundup
 
-Effortlessly sync comic ratings from [ComicBookRoundup](https://comicbookroundup.com/) directly into your [Komga](https://komga.org/) library. This userscript automates the process of fetching critic and user ratings, saving them as metadata links within Komga, enhancing your comic management experience.
+Sync comic ratings from [ComicBookRoundup](https://comicbookroundup.com/) directly into your [Komga](https://komga.org/) library. This userscript fetches critic and user ratings, saves them as metadata links in Komga, and shows them on your library cards.
+
+[![Install](https://img.shields.io/badge/Install-komga--comic--ratings.user.js-2ea44f?style=for-the-badge)](https://raw.githubusercontent.com/wrecks-code/komga-sync-comic-ratings/main/komga-comic-ratings.user.js)
+
+Needs [Tampermonkey](https://www.tampermonkey.net/) or [Violentmonkey](https://violentmonkey.github.io/). Click the button, confirm, done: it works out of the box on addresses starting with `komga.` or on port `25600`, and updates itself. Other addresses: see [Installation](#-installation).
+
+## ✨ What's new in 2.x
+
+* **Works with Komga's new UI** (`/next`) as well as the classic one, in any theme and any language (fixes #1).
+* **One script, one-click install, automatic updates.** The library view and the "remove all ratings" tool are built in.
+* **No API key needed.** The old `KOMGA_API_KEY` setting never did anything; Komga authenticates you through your login.
+* **Much better matching:** the right volume for series like *Batman (2016)*, story arcs and omnibuses (*Batman: Year One*, *Old Man Logan*) matched via their trade paperbacks, and fewer wrong matches.
+* **Fix a match once and it sticks:** refreshes reuse the saved link. Shift+click to search again.
+
+Upgrading from 1.x? Remove the old `Komga - Sync Comic Ratings` and `Komga - Show Ratings in Library View` scripts, install the new one, then **Shift+click** the ★ next to your library name once to redo all matches with the new matching.
 
 ## 🚀 Key Features
 
@@ -13,7 +27,7 @@ Effortlessly sync comic ratings from [ComicBookRoundup](https://comicbookroundup
 * **Detailed Logging:** Monitor progress and troubleshoot with comprehensive console logs (F12 - > Console, Filter: komga). 
   
      ![Detailed Logs Animation](https://github.com/user-attachments/assets/2a438b07-5062-4f81-b3b1-d42bc8e4f328)
-* **New Feature:** Add your own Rating! It also gets saved as a link in Komga.
+* **Your Own Rating:** Rate a series with 1–10 stars; it gets saved as a link in Komga too.
 
      ![OwnRatingAnimation](https://github.com/user-attachments/assets/55ffe7c9-4a27-4600-bcc8-7887ee634e93)
 
@@ -37,8 +51,6 @@ Effortlessly sync comic ratings from [ComicBookRoundup](https://comicbookroundup
    - **Violentmonkey:** Dashboard → edit the script → *Settings* tab → add `https://comics.example.com/*` under the `@match` rules, keeping the original ones
 
    Then reload Komga.
-
-**Upgrading from 2.0 or older?** Remove the old `Komga - Sync Comic Ratings` and `Komga - Show Ratings in Library View` scripts first; this one replaces both. The old `KOMGA_API_KEY` setting is gone too, Komga never read it.
 
 ## 🎯 Matching
 
