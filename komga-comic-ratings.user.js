@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Komga - Comic Ratings (from ComicBookRoundup)
 // @namespace    wreck.userscripts.komga.rating
-// @version      2.2
+// @version      2.3
 // @description  Syncs ComicBookRoundup critic and user ratings into Komga, lets you rate series yourself, and shows ratings on library cards
 // @author       wrecks-code, Fontler
 // @include      /^https?:\/\/komga\.[^\/]+\//
@@ -465,7 +465,8 @@
     lookup
       .then(found => {
         if (!found) {
-          doneCallback();
+          // A fresh search found nothing: drop ratings from an earlier wrong match.
+          removeRatingLinks(seriesObj, ["Critic Rating", "User Rating"], doneCallback);
           return;
         }
         const { url, criticRating, userRating, criticReviews, userReviews } = found;
@@ -834,6 +835,29 @@
   /******************************************************
    * (D) Patch Komga
    ******************************************************/
+  function removeRatingLinks(seriesObj, prefixes, callback) {
+    const links = seriesObj.metadata?.links || [];
+    const kept = links.filter(link => !prefixes.some(p => link.label.startsWith(p)));
+    if (kept.length === links.length) {
+      callback();
+      return;
+    }
+    fetch(`${KOMGA_HOST}/api/v1/series/${seriesObj.id}/metadata`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ links: kept })
+    })
+    .then(resp => {
+      if (resp.ok) console.log(`🧹 Removed old ratings from "${seriesObj.metadata?.title || seriesObj.name}" (no match anymore).`);
+      else console.error(`❌ Failed to remove old ratings: ${resp.status}`);
+      callback();
+    })
+    .catch(err => {
+      console.error("❌ Error removing old ratings:", err);
+      callback();
+    });
+  }
+
   function addLinkToSeries(seriesId, label, linkLabel, linkUrl, labelCheck, callback = () => {}) {
     fetch(`${KOMGA_HOST}/api/v1/series/${seriesId}`)
     .then(r => r.json())
