@@ -1,18 +1,23 @@
 // ==UserScript==
-// @name         Komga - Sync Comic Ratings (from ComicBookRoundup)
+// @name         Komga - Comic Ratings (from ComicBookRoundup)
 // @namespace    wreck.userscripts.komga.rating
-// @version      2.0
-// @description  Fetches comic ratings from comicbookroundup.com and syncs them into Komga metadata using the API
-// @grant        GM_xmlhttpRequest
-// @connect      comicbookroundup.com
+// @version      2.1
+// @description  Syncs ComicBookRoundup critic and user ratings into Komga, lets you rate series yourself, and shows ratings on library cards
 // @author       wrecks-code, Fontler
 // @match        https://komga.org/*
+// @grant        GM_xmlhttpRequest
+// @grant        GM_registerMenuCommand
+// @connect      comicbookroundup.com
+// @downloadURL  https://raw.githubusercontent.com/wrecks-code/komga-sync-comic-ratings/main/komga-comic-ratings.user.js
+// @updateURL    https://raw.githubusercontent.com/wrecks-code/komga-sync-comic-ratings/main/komga-comic-ratings.user.js
 // ==/UserScript==
+
+// Add your Komga address under the script's "User matches" setting in your
+// userscript manager (see README) instead of editing @match, so updates keep it.
 
 (function() {
   'use strict';
 
-  // !!! Put your Komga URL in @match up top!
   // Requests use your logged-in Komga session, no API key needed.
 
   // This doesn't have to be changed
@@ -862,4 +867,239 @@
     });
   }
 
+})();
+
+/******************************************************
+ * Ratings on library cards
+ ******************************************************/
+(function() {
+  'use strict';
+
+  // Requests use your logged-in Komga session, no API key needed.
+  const KOMGA_HOST     = location.origin;
+  const seriesCache    = {};
+
+  const ICONS = {
+    star: "M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z",
+    accountStar: "M15,14C12.33,14 7,15.33 7,18V20H23V18C23,15.33 17.67,14 15,14M15,12A4,4 0 0,0 19,8A4,4 0 0,0 15,4A4,4 0 0,0 11,8A4,4 0 0,0 15,12M5,13.28L7.45,14.77L6.8,11.96L9,10.08L6.11,9.83L5,7.19L3.87,9.83L1,10.08L3.18,11.96L2.5,14.77L5,13.28Z"
+  };
+
+  function svgIcon(path) {
+    const ns = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(ns, "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.style.width = "1rem";
+    svg.style.height = "1rem";
+    svg.style.fill = "currentColor";
+    svg.style.marginRight = "4px";
+    const p = document.createElementNS(ns, "path");
+    p.setAttribute("d", path);
+    svg.appendChild(p);
+    return svg;
+  }
+
+  // --- DOM Query Helpers ---
+  // Works in both the classic UI (.item-card, Vuetify 2) and the new UI (/next, Vuetify 3).
+  function getLibraryCards() {
+    return Array.from(document.querySelectorAll('.v-card'))
+      .filter(card => card.querySelector('a[href^="/series/"]'));
+  }
+
+  // Where to put the rating display inside a card.
+  function getCardTextTarget(card) {
+    return card.querySelector('.v-card__text') || card.querySelector('.v-card-subtitle');
+  }
+
+  // --- Debounce Utility ---
+  function debounce(fn, delay) {
+    let timer = null;
+    return function(...args) {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn.apply(this, args), delay);
+    };
+  }
+
+  // --- Route & Mutation Handling ---
+  const handleRouteChangeDebounced = debounce(handleRouteChange, 500);
+  function handleRouteChange() {
+    if (/^\/libraries\/[^/]+\/series/.test(location.pathname)) {
+      enhanceLibrarySeriesCards();
+    }
+  }
+
+  // Observe the document body for mutations.
+  const observer = new MutationObserver(handleRouteChangeDebounced);
+  observer.observe(document.body, { childList: true, subtree: true });
+  window.addEventListener("popstate", handleRouteChangeDebounced);
+  window.addEventListener("hashchange", handleRouteChangeDebounced);
+  setInterval(handleRouteChangeDebounced, 2000);
+
+  // --- Enhance Library Series Cards ---
+  function enhanceLibrarySeriesCards() {
+    const cards = getLibraryCards();
+    cards.forEach(card => {
+      const link = card.querySelector('a[href^="/series/"]');
+      if (!link) return;
+      const parts = link.getAttribute('href').split('/');
+      if (parts.length < 3) return;
+      const seriesId = parts[2];
+      // Cards get reused for other series when sorting/filtering.
+      if (card.dataset.ratingsSeriesId === seriesId) return;
+      card.dataset.ratingsSeriesId = seriesId;
+      const oldDisplay = card.querySelector('.modern-rating-display');
+      if (oldDisplay) oldDisplay.remove();
+      fetchSeriesAndDisplayRatings(seriesId, card);
+    });
+  }
+
+  function fetchSeriesAndDisplayRatings(seriesId, cardElem) {
+    if (seriesCache[seriesId]) {
+      processSeries(seriesCache[seriesId], seriesId, cardElem);
+      return;
+    }
+    const url = `${KOMGA_HOST}/api/v1/series/${seriesId}`;
+    fetch(url)
+      .then(r => r.json())
+      .then(series => {
+        seriesCache[seriesId] = series;
+        processSeries(series, seriesId, cardElem);
+      })
+      .catch(err => {
+        console.error(`Error fetching series metadata for id=${seriesId}`, err);
+      });
+  }
+
+  function processSeries(series, seriesId, cardElem) {
+    const links = series.metadata.links || [];
+    const criticLink = links.find(x => x.label.startsWith("Critic Rating"));
+    const userLink   = links.find(x => x.label.startsWith("User Rating"));
+    const yourLink   = links.find(x => x.label.startsWith("Your Rating"));
+    if (!criticLink && !userLink && !yourLink) return;
+    if (cardElem.dataset.ratingsSeriesId !== seriesId) return;
+    if (cardElem.querySelector('.modern-rating-display')) return;
+    const display = buildModernRatingDisplay(criticLink, userLink, yourLink);
+    if (display) {
+      const target = getCardTextTarget(cardElem);
+      if (target) {
+        // Center the display and add extra top margin.
+        const wrapper = document.createElement('div');
+        wrapper.className = 'modern-rating-display';
+        wrapper.style.textAlign = "center";
+        wrapper.style.padding = "0 8px 8px";
+        display.style.marginTop = "8px";
+        wrapper.appendChild(display);
+        target.after(wrapper);
+      }
+    }
+  }
+
+  /**
+   * Builds a modern, compact rating display as a plain div.
+   * It selects the rating (critic or user) with more reviews and adds your rating if available.
+   */
+  function buildModernRatingDisplay(criticLink, userLink, yourLink) {
+    function parseRatingLink(linkObj) {
+      let raw = linkObj.label;
+      raw = raw.replace(/\bAvg\.\b/gi, "");
+      const ratingMatch = raw.match(/:\s*([\d.]+)/);
+      if (!ratingMatch) return null;
+      const ratingVal = ratingMatch[1].trim();
+      if (ratingVal === "N/A") return null;
+      const reviewsMatch = raw.match(/\(\s*(\d+)\s*(?:reviews?)?\s*\)/i);
+      if (!reviewsMatch) return null;
+      return { rating: ratingVal, reviews: parseInt(reviewsMatch[1], 10) };
+    }
+    const criticData = criticLink ? parseRatingLink(criticLink) : null;
+    const userData   = userLink ? parseRatingLink(userLink) : null;
+    let chosenData = null;
+    let chosenType = "";
+    if (criticData && userData) {
+      chosenData = (criticData.reviews >= userData.reviews) ? criticData : userData;
+      chosenType = (criticData.reviews >= userData.reviews) ? "C" : "U";
+    } else if (criticData) {
+      chosenData = criticData;
+      chosenType = "C";
+    } else if (userData) {
+      chosenData = userData;
+      chosenType = "U";
+    }
+
+    function parseYourRating(linkObj) {
+      const parts = linkObj.label.split(":");
+      if (parts.length < 2) return null;
+      const rating = parseInt(parts[1].trim(), 10);
+      return isNaN(rating) ? null : rating;
+    }
+    const yourRating = yourLink ? parseYourRating(yourLink) : null;
+    if (!chosenData && yourRating == null) return null;
+
+    // Build rating display container.
+    const container = document.createElement('div');
+    container.style.display = 'inline-flex';
+    container.style.alignItems = 'center';
+    container.style.gap = "6px";
+    container.style.backgroundColor = "rgba(128,128,128,0.15)";
+    container.style.padding = "4px 8px";
+    container.style.borderRadius = "4px";
+    container.style.fontSize = "0.9rem";
+    // Build chosen rating element.
+    if (chosenData) {
+      const ratingEl = document.createElement('span');
+      ratingEl.title = chosenType === "C" ? "Critic Rating" : "User Rating";
+      ratingEl.style.display = 'inline-flex';
+      ratingEl.style.alignItems = 'center';
+      ratingEl.appendChild(svgIcon(chosenType === "C" ? ICONS.star : ICONS.accountStar));
+      ratingEl.appendChild(document.createTextNode(`${chosenData.rating}(${chosenData.reviews})`));
+      container.appendChild(ratingEl);
+    }
+    // Add your rating element if available.
+    if (yourRating != null) {
+      const yourEl = document.createElement('span');
+      yourEl.title = "Your Rating";
+      yourEl.style.display = 'inline-flex';
+      yourEl.style.alignItems = 'center';
+      yourEl.appendChild(svgIcon(ICONS.star));
+      yourEl.appendChild(document.createTextNode(yourRating));
+      container.appendChild(yourEl);
+    }
+    return container;
+  }
+
+  // --- Initial Run ---
+  handleRouteChange();
+
+})();
+
+/******************************************************
+ * Remove all ratings (userscript manager menu)
+ ******************************************************/
+(function() {
+  'use strict';
+
+  const RATING_PREFIXES = ["critic rating:", "user rating:", "your rating:"];
+
+  GM_registerMenuCommand("Remove all ratings in this library", async () => {
+    const match = location.pathname.match(/^\/libraries\/([^/]+)\/series/);
+    if (!match) {
+      alert("Open a library's series view in Komga first.");
+      return;
+    }
+    if (!confirm("Remove all Critic, User and Your Rating links from every series in this library?")) return;
+
+    const data = await (await fetch(`${location.origin}/api/v1/series?library_id=${match[1]}&page=0&size=9999`)).json();
+    let changed = 0;
+    for (const series of data.content || []) {
+      const links = series.metadata.links || [];
+      const kept = links.filter(link => !RATING_PREFIXES.some(p => link.label.toLowerCase().trim().startsWith(p)));
+      if (kept.length === links.length) continue;
+      const resp = await fetch(`${location.origin}/api/v1/series/${series.id}/metadata`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ links: kept })
+      });
+      if (resp.ok) changed++;
+      else console.error(`❌ Failed to update series ${series.id}: ${resp.status}`);
+    }
+    alert(`Removed ratings from ${changed} series.`);
+  });
 })();

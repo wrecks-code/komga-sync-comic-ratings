@@ -17,7 +17,7 @@ Effortlessly sync comic ratings from [ComicBookRoundup](https://comicbookroundup
 
      ![OwnRatingAnimation](https://github.com/user-attachments/assets/55ffe7c9-4a27-4600-bcc8-7887ee634e93)
 
-* **Optional:** Install the show-ratings-in-library.js as well if you want to see these ratings in your library view.
+* **Library View:** Ratings show up on every series card in the library.
 
      ![image](https://github.com/user-attachments/assets/647ac1cb-670f-4882-97df-2505bc8040ed)
 
@@ -25,26 +25,20 @@ Effortlessly sync comic ratings from [ComicBookRoundup](https://comicbookroundup
 ## ⚙️ Requirements
 
 * A running [Komga](https://komga.org/) instance (tested with 1.27). Works in both the classic web UI and the new UI (`/next`), in any theme and language.
-* Being logged into Komga in the same browser. The scripts use your session, no API key needed.
-* A userscript manager.
+* Being logged into Komga in the same browser. The script uses your session, no API key needed.
+* [Tampermonkey](https://www.tampermonkey.net/) or [Violentmonkey](https://violentmonkey.github.io/). Greasemonkey 4 is not supported.
   
 ## 🔧 Installation
 
-1. **Install a Userscript Manager:**  
-   Choose and install one of the following:
-   - [Tampermonkey](https://www.tampermonkey.net/)
-   - [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/)
-   - [Violentmonkey](https://violentmonkey.github.io/)
+1. **Install the script:** with Tampermonkey or Violentmonkey installed, open [komga-comic-ratings.user.js](https://raw.githubusercontent.com/wrecks-code/komga-sync-comic-ratings/main/komga-comic-ratings.user.js) and confirm the install. Updates arrive automatically.
 
-2. **Add the Script:**  
-   Create a new userscript in your chosen manager and copy-paste the contents of komga-sync-comic-ratings.js.
+2. **Point it at your Komga:** add your Komga address as a *user match* (don't edit `@match` in the code, updates would overwrite it):
+   - **Tampermonkey:** Dashboard → the script → *Settings* → *Includes/Excludes* → *User matches* → add `https://komga.example.com/*`
+   - **Violentmonkey:** Dashboard → edit the script → *Settings* tab → add `https://komga.example.com/*` under the `@match` rules, keeping the original ones
 
-3. **Configure the Script:**
-   - Replace the URL at the top of the script with your Komga URL:
-     ```js
-     // @match        https://komga.org/*
-     ```
-   - Upgrading from 1.x? The `KOMGA_API_KEY` setting is gone. Komga never read it; requests always went through your login session.
+   Then reload Komga.
+
+**Upgrading from 2.0 or older?** Remove the old `Komga - Sync Comic Ratings` and `Komga - Show Ratings in Library View` scripts first; this one replaces both. The old `KOMGA_API_KEY` setting is gone too, Komga never read it.
 
 ## 🎯 Matching
 
@@ -54,7 +48,7 @@ Once a series has a ComicBookRoundup link, refreshes reuse it instead of searchi
 
 ## 🧹 Removing all ratings
 
-`reset-links.js` removes every `Critic Rating`, `User Rating` and `Your Rating` link from a library. Open the library in Komga, press F12, and paste it into the console.
+Open a library in Komga, click your userscript manager's icon, and choose **Remove all ratings in this library**. It removes every `Critic Rating`, `User Rating` and `Your Rating` link after asking to confirm.
 
 ## 📝 License
 
