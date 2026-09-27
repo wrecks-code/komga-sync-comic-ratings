@@ -32,9 +32,9 @@ Effortlessly sync comic ratings from [ComicBookRoundup](https://comicbookroundup
 
 1. **Install the script:** with Tampermonkey or Violentmonkey installed, open [komga-comic-ratings.user.js](https://raw.githubusercontent.com/wrecks-code/komga-sync-comic-ratings/main/komga-comic-ratings.user.js) and confirm the install. Updates arrive automatically.
 
-2. **Point it at your Komga:** add your Komga address as a *user match* (don't edit `@match` in the code, updates would overwrite it):
-   - **Tampermonkey:** Dashboard → the script → *Settings* → *Includes/Excludes* → *User matches* → add `https://komga.example.com/*`
-   - **Violentmonkey:** Dashboard → edit the script → *Settings* tab → add `https://komga.example.com/*` under the `@match` rules, keeping the original ones
+2. **Komga on a different address?** It runs out of the box when your Komga address starts with `komga.` (e.g. `https://komga.example.com`) or uses the default port `25600`. For anything else, add your address as a *user match* once (don't edit the code, updates would overwrite it):
+   - **Tampermonkey:** Dashboard → the script → *Settings* → *Includes/Excludes* → *User matches* → add `https://comics.example.com/*`
+   - **Violentmonkey:** Dashboard → edit the script → *Settings* tab → add `https://comics.example.com/*` under the `@match` rules, keeping the original ones
 
    Then reload Komga.
 

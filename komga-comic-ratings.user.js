@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         Komga - Comic Ratings (from ComicBookRoundup)
 // @namespace    wreck.userscripts.komga.rating
-// @version      2.1
+// @version      2.2
 // @description  Syncs ComicBookRoundup critic and user ratings into Komga, lets you rate series yourself, and shows ratings on library cards
 // @author       wrecks-code, Fontler
-// @match        https://komga.org/*
+// @include      /^https?:\/\/komga\.[^\/]+\//
+// @include      /^https?:\/\/[^\/]+:25600\//
 // @grant        GM_xmlhttpRequest
 // @grant        GM_registerMenuCommand
 // @connect      comicbookroundup.com
@@ -12,8 +13,9 @@
 // @updateURL    https://raw.githubusercontent.com/wrecks-code/komga-sync-comic-ratings/main/komga-comic-ratings.user.js
 // ==/UserScript==
 
-// Add your Komga address under the script's "User matches" setting in your
-// userscript manager (see README) instead of editing @match, so updates keep it.
+// Runs on hosts starting with "komga." and on Komga's default port 25600.
+// Other addresses: add a "User match" in your userscript manager (see README)
+// instead of editing the lines above, so updates keep it.
 
 (function() {
   'use strict';
