@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Komga - Comic Ratings (from ComicBookRoundup)
 // @namespace    wreck.userscripts.komga.rating
-// @version      2.3
+// @version      2.4
 // @description  Syncs ComicBookRoundup critic and user ratings into Komga, lets you rate series yourself, and shows ratings on library cards
 // @author       wrecks-code, Fontler
 // @include      /^https?:\/\/komga\.[^\/]+\//
@@ -936,6 +936,19 @@
     return card.querySelector('.v-card__text') || card.querySelector('.v-card-subtitle');
   }
 
+  // On/off switch in the userscript manager menu, remembered per Komga site.
+  const TOGGLE_KEY = "komga-ratings-on-cards";
+  let cardsEnabled = localStorage.getItem(TOGGLE_KEY) !== "off";
+  GM_registerMenuCommand("Show/hide ratings on library cards", () => {
+    cardsEnabled = !cardsEnabled;
+    localStorage.setItem(TOGGLE_KEY, cardsEnabled ? "on" : "off");
+    getLibraryCards().forEach(card => {
+      delete card.dataset.ratingsSeriesId;
+      card.querySelector('.modern-rating-display')?.remove();
+    });
+    handleRouteChange();
+  });
+
   // --- Debounce Utility ---
   function debounce(fn, delay) {
     let timer = null;
@@ -948,7 +961,7 @@
   // --- Route & Mutation Handling ---
   const handleRouteChangeDebounced = debounce(handleRouteChange, 500);
   function handleRouteChange() {
-    if (/^\/libraries\/[^/]+\/series/.test(location.pathname)) {
+    if (cardsEnabled && /^\/libraries\/[^/]+\/series/.test(location.pathname)) {
       enhanceLibrarySeriesCards();
     }
   }
@@ -1003,6 +1016,7 @@
     if (!criticLink && !userLink && !yourLink) return;
     if (cardElem.dataset.ratingsSeriesId !== seriesId) return;
     if (cardElem.querySelector('.modern-rating-display')) return;
+    if (!cardsEnabled) return;
     const display = buildModernRatingDisplay(criticLink, userLink, yourLink);
     if (display) {
       const target = getCardTextTarget(cardElem);

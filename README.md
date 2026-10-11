@@ -31,7 +31,7 @@ Upgrading from 1.x? Remove the old `Komga - Sync Comic Ratings` and `Komga - Sho
 
      ![OwnRatingAnimation](https://github.com/user-attachments/assets/55ffe7c9-4a27-4600-bcc8-7887ee634e93)
 
-* **Library View:** Ratings show up on every series card in the library.
+* **Library View:** Ratings show up on every series card in the library. Turn them off with **Show/hide ratings on library cards** in your userscript manager's menu.
 
      ![image](https://github.com/user-attachments/assets/647ac1cb-670f-4882-97df-2505bc8040ed)
 
